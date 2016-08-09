@@ -1,0 +1,23 @@
+<html>
+<head></head>
+<body>
+
+<h1> WebChat</h1>
+
+<form action="/message" method="post">
+  Remetente:<input type="text" name="Remetente" /><br></br>
+  Destino  :<input type="text" name="Destinatario"/><br></br>
+  Assunto  :<input type="text" name="Assunto" /><br></br>
+  Mensagem :<input type="text" name="Mensagem" /><br></br>
+  <input type="submit" name="submit" value="Gravar mensagem" />
+</form>
+
+<h2>Mensagens</h2>
+<ul>
+    %for x,y,z,w in list_messages:
+        <li>Remetente: {{x}}; Destinatario: {{y}}; Assunto: {{z}}; Mensagem:{{w}} </li>
+    %end
+</ul>
+
+</body>
+</html>
