@@ -1,4 +1,5 @@
 from bottle import route, run, template, get, request, post, redirect, view
+from sys import argv
 
 list_messages = []
 
@@ -18,4 +19,6 @@ def receive_message():
         list_messages.append((source, target, subjec, messag))
     redirect('/')
 
-run(host="localhost", port=8080)
+print(argv[1])
+print(int(argv[1]))
+run(host="localhost", port=int(argv[1]))
