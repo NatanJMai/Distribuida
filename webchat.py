@@ -40,6 +40,7 @@ def t_messages():
     while True:
         for p in l_clients:
             messg = requests.get(p + '/list_messages')
+            print(p, lst_m)
             lst_m = json.loads(messg.text)
 
             time.sleep(1)
@@ -47,8 +48,8 @@ def t_messages():
 
         if lst_m in l_messages == False:
             l_messages[:] = lst_m + l_messages
-        print(l_messages)
-        print(lst_m)
+        #print(l_messages)
+        #print(lst_m)
 
 
 def t_clients():
@@ -63,7 +64,7 @@ def t_clients():
             time.sleep(1)
 
         l_clients[:]  = list(set(lst_p + l_clients))
-        print(l_clients)
+        #print(l_clients)
 
 
 def main():
