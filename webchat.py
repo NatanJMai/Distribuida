@@ -28,49 +28,41 @@ def receive_message():
 def search_peers():
     return json.dumps(l_clients)
 
-@bottle.route('/list_messages')
+@bottle.get('/list_messages')
 def search_messages():
     return json.dumps(l_messages)
 
 
 def t_messages():
-    time.sleep(4)
-    lst_m = []
+    time.sleep(5)
 
     while True:
-        for p in l_clients:
-            messg = requests.get(p + '/list_messages')
-            print(p, lst_m)
-            lst_m = json.loads(messg.text)
+        time.sleep(3)
 
-            time.sleep(1)
-
-
-        if lst_m in l_messages == False:
-            l_messages[:] = lst_m + l_messages
-        #print(l_messages)
-        #print(lst_m)
-
+        for c in l_clients:
+            r  = requests.get(c + '/list_messages')
+            for m in json.loads(r.text):
+                if m not in l_messages:
+                    l_messages.append(m)
 
 def t_clients():
-    time.sleep(4)
+    time.sleep(5)
     lst_p = []
 
     while True:
+        time.sleep(2)
+
         for p in l_clients:
             peers = requests.get(p + '/list_peers')
             lst_p = l_clients  + json.loads(peers.text)
-
-            time.sleep(1)
-
         l_clients[:]  = list(set(lst_p + l_clients))
-        #print(l_clients)
 
 
 def main():
     t = threading.Thread(target=t_clients)
-    p = threading.Thread(target=t_messages)
     t.start()
+
+    p = threading.Thread(target=t_messages)
     p.start()
 
     bottle.run(host="localhost", port=int(argv[1]))
