@@ -14,8 +14,8 @@
 
 <h2>Mensagens</h2>
 <ul>
-    %for x,y,z,w in list_messages:
-        <li>Remetente: {{x}}; Destinatario: {{y}}; Assunto: {{z}}; Mensagem:{{w}} </li>
+    %for msg in list_messages:
+        <li>Remetente: {{msg.source}}; Destinatario: {{msg.target}}; Assunto: {{msg.subjec}}; Mensagem: {{msg.messag}}</li>
     %end
 </ul>
 

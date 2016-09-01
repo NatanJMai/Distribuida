@@ -3,15 +3,17 @@ import json
 import threading
 import requests
 import time
-from sys import argv
+from message        import *
+from sys            import argv
 
 l_messages = []
+m_messages = []
 l_clients  = argv[2:]
 
 @bottle.get('/')
 @bottle.view('index')
 def message():
-     return {'list_messages': l_messages}
+     return {'list_messages': m_messages}
 
 @bottle.post('/message')
 def receive_message():
@@ -21,6 +23,7 @@ def receive_message():
     messag = bottle.request.forms.get("Mensagem")
 
     if source != "" and target != "":
+        m_messages.append(Message(source, target, subjec, messag))
         l_messages.append([source, target, subjec, messag])
     bottle.redirect('/')
 
