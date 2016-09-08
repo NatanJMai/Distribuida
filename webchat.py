@@ -6,14 +6,19 @@ import time
 from message        import *
 from sys            import argv
 
-l_messages = []
-m_messages = []
-l_clients  = argv[2:]
+global localhost, port
+
+localhost, port = 'localhost', int(argv[1])
+l_messages      = []
+m_messages      = []
+l_clients       = argv[2:]
+d_clients       = {}
 
 @bottle.get('/')
 @bottle.view('index')
 def message():
-     return {'list_messages': m_messages}
+     st = 'http://' + localhost + ':' + str(port)
+     return {'list_messages': l_messages}
 
 @bottle.post('/message')
 def receive_message():
@@ -23,8 +28,10 @@ def receive_message():
     messag = bottle.request.forms.get("Mensagem")
 
     if source != "" and target != "":
-        m_messages.append(Message(source, target, subjec, messag))
-        l_messages.append([source, target, subjec, messag])
+        st = 'http://' + localhost + ':' + str(port)
+        d_clients[st] += 1
+        # d_clients[st]
+        l_messages.append([source, target, subjec, messag, localhost, port, d_clients[st]])
     bottle.redirect('/')
 
 @bottle.route('/list_peers')
@@ -36,6 +43,14 @@ def search_messages():
     return json.dumps(l_messages)
 
 
+@bottle.get('/time')
+def get_time():
+    st = 'http://' + localhost + ':' + str(port)
+    #print(st, d_clients[st])
+    return json.dumps(d_clients[st])
+    #return json.dumps(d_clients[st])
+
+
 def t_messages():
     time.sleep(5)
 
@@ -44,8 +59,17 @@ def t_messages():
 
         for c in l_clients:
             r  = requests.get(c + '/list_messages')
+            t  = requests.get(c + '/time')
+            #print(json.loads(t.text))
             for m in json.loads(r.text):
                 if m not in l_messages:
+                    st = 'http://' + localhost + ':' + str(port)
+                    #print(m)
+                    print(d_clients[c], json.loads(t.text))
+                    d_clients[c]  = max(d_clients[c], json.loads(t.text))
+                    d_clients[st] += 1
+                    print(d_clients)
+                    #print("Aqui -> %d\n" % d_clients[c])
                     l_messages.append(m)
 
 def t_clients():
@@ -59,6 +83,9 @@ def t_clients():
             peers = requests.get(p + '/list_peers')
             lst_p = l_clients  + json.loads(peers.text)
         l_clients[:]  = list(set(lst_p + l_clients))
+        for i in l_clients:
+            if not i in d_clients:
+                d_clients[i] = 0
 
 
 def main():
@@ -68,7 +95,7 @@ def main():
     p = threading.Thread(target=t_messages)
     p.start()
 
-    bottle.run(host="localhost", port=int(argv[1]))
+    bottle.run(host=localhost, port=port)
 
 if __name__ == '__main__':
     main()
