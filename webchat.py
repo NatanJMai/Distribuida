@@ -21,7 +21,7 @@ def message():
      return {'list_messages': l_messages}
 
 @bottle.post('/message')
-def receive_message():
+def send_message():
     source = bottle.request.forms.get("Remetente")
     target = bottle.request.forms.get("Destinatario")
     subjec = bottle.request.forms.get("Assunto")
@@ -30,8 +30,14 @@ def receive_message():
     if source != "" and target != "":
         st = 'http://' + localhost + ':' + str(port)
         d_clients[st] += 1
+        d_client_aux = {}
+
+        for i in l_clients:
+            d_client_aux[i] = d_clients[i]
+
         # d_clients[st]
-        l_messages.append([source, target, subjec, messag, localhost, port, d_clients[st]])
+        #l_messages.append([source, target, subjec, messag, localhost, port, d_clients[st]])
+        l_messages.append([source, target, subjec, messag, localhost, port, d_client_aux])
     bottle.redirect('/')
 
 @bottle.route('/list_peers')
@@ -59,16 +65,23 @@ def t_messages():
 
         for c in l_clients:
             r  = requests.get(c + '/list_messages')
-            t  = requests.get(c + '/time')
+            #t  = requests.get(c + '/time')
             #print(json.loads(t.text))
             for m in json.loads(r.text):
                 if m not in l_messages:
-                    st = 'http://' + localhost + ':' + str(port)
-                    #print(m)
-                    print(d_clients[c], json.loads(t.text))
-                    d_clients[c]  = max(d_clients[c], json.loads(t.text))
+                    new_d = m[-1]
+                    st    = 'http://' + localhost + ':' + str(port)
                     d_clients[st] += 1
-                    print(d_clients)
+
+                    print("Antigo -> %s\n" % str(d_clients))
+                    print("Recebi -> %s\n" % str(new_d))
+
+                    for cl in l_clients:
+                        d_clients[cl] = max(d_clients[cl], new_d[cl])
+                    #d_clients[c]  = max(d_clients[c], json.loads(t.text))
+                    
+                    print("Novo -> %s\n" % str(d_clients))
+                    
                     #print("Aqui -> %d\n" % d_clients[c])
                     l_messages.append(m)
 
